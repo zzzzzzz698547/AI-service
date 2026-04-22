@@ -25,3 +25,5 @@ prisma/dev.db
 # OS files
 Thumbs.db
 Desktop.ini
+
+.vercel

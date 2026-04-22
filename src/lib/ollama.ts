@@ -49,6 +49,20 @@ function hasNonTraditionalChineseCharacters(text: string) {
   return /[A-Za-z]/.test(text) || /[\u{1F300}-\u{1FAFF}]/u.test(text) || !/[\u4E00-\u9FFF]/.test(text)
 }
 
+function getTunnelHeaders(baseUrl: string): Record<string, string> {
+  const hostname = new URL(baseUrl).hostname
+  if (hostname.endsWith('.loca.lt')) {
+    return { 'bypass-tunnel-reminder': 'true' }
+  }
+  if (hostname.endsWith('.ngrok-free.dev') || hostname.endsWith('.ngrok.app') || hostname.endsWith('.ngrok.io')) {
+    return { 'ngrok-skip-browser-warning': 'true' }
+  }
+  if (hostname.endsWith('.trycloudflare.com')) {
+    return { 'cf-connecting-ip': '127.0.0.1' }
+  }
+  return {}
+}
+
 async function rewriteToTraditionalChinese(content: string, context: string) {
   const { baseUrl, model } = getOllamaSettings()
   if (!baseUrl) {
@@ -351,10 +365,12 @@ async function callOllamaChat(messages: Array<{ role: 'system' | 'user'; content
   const timeout = setTimeout(() => controller.abort(), 15_000)
 
   try {
+    const tunnelHeaders = getTunnelHeaders(baseUrl)
     const response = await fetch(`${baseUrl.replace(/\/$/, '')}/api/chat`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...tunnelHeaders
       },
       body: JSON.stringify({
         model,
