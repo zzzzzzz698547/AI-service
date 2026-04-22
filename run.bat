@@ -6,6 +6,28 @@ echo ==========================================
 echo  Loan Smart Intake CRM - One Click Runner
 echo ==========================================
 
+echo Cleaning any previous local dev processes for this project...
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$root = (Resolve-Path '.').Path; " ^
+  "Get-CimInstance Win32_Process | Where-Object { " ^
+  "  $_.Name -eq 'node.exe' -and $_.CommandLine -and " ^
+  "  $_.CommandLine -like ('*' + $root + '*') -and (" ^
+  "    $_.CommandLine -like '*next*dev*' -or " ^
+  "    $_.CommandLine -like '*run-dual-dev.mjs*' -or " ^
+  "    $_.CommandLine -like '*npm-cli.js*run dev*' " ^
+  "  )" ^
+  "} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>nul
+
+if exist ".next" (
+  echo Removing stale .next cache...
+  rmdir /s /q ".next"
+)
+
+if exist ".dual-dev" (
+  echo Removing stale dual-dev workspace...
+  rmdir /s /q ".dual-dev"
+)
+
 where node >nul 2>nul
 if errorlevel 1 (
   echo Node.js was not found. Please install Node.js 20+ first.

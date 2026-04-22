@@ -1,6 +1,6 @@
 import type { LeadAnswerKey, LeadIntakeInput } from '@/lib/types'
 
-export type StepKind = 'money' | 'text' | 'boolean' | 'select' | 'phone'
+export type StepKind = 'money' | 'number' | 'text' | 'boolean' | 'select' | 'phone' | 'date'
 
 export type StepOption = {
   label: string
@@ -17,58 +17,164 @@ export type IntakeStep = {
 }
 
 export const intakeSteps: IntakeStep[] = [
-  { key: 'fundingNeed', label: '資金需求', description: '請輸入希望申請的金額。', kind: 'money', placeholder: '例如 300000' },
-  { key: 'fundingUse', label: '資金用途', description: '簡述這筆資金主要用途。', kind: 'text', placeholder: '例如：營運周轉、裝修、整合卡費' },
   {
-    key: 'jobType',
-    label: '職業類型',
-    description: '選擇最接近你的工作型態。',
+    key: 'incomeProofProfile',
+    label: '有無勞保或薪轉',
+    description: '請先選目前是否有薪轉、勞保或兩者都有。',
     kind: 'select',
     options: [
-      { label: '上班族', value: '上班族' },
-      { label: '自由工作者', value: '自由工作者' },
-      { label: '餐飲業', value: '餐飲業' },
-      { label: '服務業', value: '服務業' },
-      { label: '製造業', value: '製造業' },
-      { label: '其他', value: '其他' }
+      { label: '都沒有', value: 'none' },
+      { label: '只有薪轉', value: 'payroll' },
+      { label: '只有勞保', value: 'laborInsurance' },
+      { label: '薪轉 + 勞保都有', value: 'both' }
     ]
   },
-  { key: 'monthlyIncome', label: '月收入', description: '請填寫平均月收入。', kind: 'money', placeholder: '例如 50000' },
-  { key: 'hasPayroll', label: '是否有薪轉', description: '是否有銀行薪資轉帳紀錄。', kind: 'boolean' },
-  { key: 'hasLaborInsurance', label: '是否有勞保', description: '是否有可查詢的勞保資料。', kind: 'boolean' },
-  { key: 'hasTaxRecords', label: '是否有報稅資料', description: '是否能提供最近年度報稅資料。', kind: 'boolean' },
-  { key: 'hasCreditCard', label: '是否有信用卡', description: '目前是否持有信用卡。', kind: 'boolean' },
-  { key: 'hasRevolving', label: '是否有卡循', description: '目前是否有循環利息或卡循使用。', kind: 'boolean' },
-  { key: 'hasOtherLoans', label: '是否有其他貸款', description: '目前是否還有其他借款。', kind: 'boolean' },
-  { key: 'monthlyDebtPayment', label: '每月負債月付', description: '目前每月固定還款金額。', kind: 'money', placeholder: '例如 12000' },
-  { key: 'recentLatePayment', label: '近期是否有遲繳', description: '近半年內是否有逾期。', kind: 'boolean' },
-  { key: 'hasNegotiationOrBankruptcy', label: '是否有協商 / 更生 / 警示帳戶', description: '若有，系統會提高風險等級。', kind: 'boolean' },
-  { key: 'hasCar', label: '是否名下有汽車', description: '是否可作為車貸或增貸評估。', kind: 'boolean' },
-  { key: 'hasHouse', label: '是否名下有房屋', description: '是否可作為房屋二胎評估。', kind: 'boolean' },
-  { key: 'hasGuarantor', label: '是否可提供保人', description: '若可提供保人，會提升補強條件。', kind: 'boolean' },
-  { key: 'fullName', label: '姓名', description: '請填寫真實姓名。', kind: 'text', placeholder: '王小明' },
-  { key: 'phone', label: '電話', description: '請填寫 09 開頭手機號碼。', kind: 'phone', placeholder: '0912345678' },
-  { key: 'lineId', label: 'LINE ID', description: '方便後續聯繫的 LINE ID。', kind: 'text', placeholder: 'mylineid' }
+  { key: 'laborInsuranceYears', label: '目前在職工作期間多久', description: '請填目前工作年資，單位為年。', kind: 'number', placeholder: '例如 3' },
+  {
+    key: 'bankLoanSummary',
+    label: '名下有哪些貸款 / 分別哪間.種類.額度.期數.繳幾期.有無遲繳.遲繳幾天',
+    description: '若有多筆，請每筆分行或用 / 分隔；例如：中國信託｜房貸｜120萬｜240期｜已繳36期｜無遲繳；裕融｜車貸｜48萬｜60期｜已繳10期｜遲繳1次約7天。沒有請填「無」。',
+    kind: 'text',
+    placeholder: '例如：中國信託｜房貸｜120萬｜240期｜已繳36期｜無遲繳；裕融｜車貸｜48萬｜60期｜已繳10期｜遲繳1次約7天'
+  },
+  {
+    key: 'creditCardSummary',
+    label: '有無信用卡',
+    description: '若有，請填銀行名稱、持卡多久、額度、已使用多少、是否繳清或繳最低。',
+    kind: 'text',
+    placeholder: '例如：台新 3 年 / 額度 10 萬 / 已用 2 萬 / 繳最低'
+  },
+  { key: 'hasBankWarningAccount', label: '是否為警示戶', description: '是否有警示戶、管制戶或異常帳戶紀錄。', kind: 'boolean' },
+  { key: 'hasCriminalRecord', label: '是否有前科', description: '是否有刑事前科或司法紀錄。', kind: 'boolean' },
+  {
+    key: 'bankFinanceIssueProfile',
+    label: '銀行跟融資是否有呆帳 / 協商',
+    description: '請選目前是否有銀行或融資呆帳、協商、或兩者皆有。',
+    kind: 'select',
+    options: [
+      { label: '都沒有', value: 'none' },
+      { label: '只有銀行呆帳', value: 'bankDebt' },
+      { label: '只有融資呆帳', value: 'financeDebt' },
+      { label: '銀行與融資都有呆帳', value: 'both' },
+      { label: '只有協商 / 更生', value: 'negotiation' },
+      { label: '銀行呆帳 + 協商', value: 'bankDebtAndNegotiation' },
+      { label: '融資呆帳 + 協商', value: 'financeDebtAndNegotiation' },
+      { label: '呆帳 + 協商都存在', value: 'bothAndNegotiation' }
+    ]
+  },
+  {
+    key: 'vehicleTaxArrearsSummary',
+    label: '有無罰單 (有)多少',
+    description: '若有，請直接填「有，金額」；若沒有請填「無」。',
+    kind: 'text',
+    placeholder: '例如：有，3600 / 無'
+  },
+  {
+    key: 'vehicleProfile',
+    label: '有無汽車或機車 / 有無汽車駕照',
+    description: '請先選目前名下是否有汽車、機車或兩者都有，並一併確認是否有汽車駕照。',
+    kind: 'select',
+    options: [
+      { label: '都沒有', value: 'none' },
+      { label: '只有機車', value: 'motorcycle' },
+      { label: '只有汽車', value: 'car' },
+      { label: '汽車 + 機車都有', value: 'both' }
+    ]
+  },
+  { key: 'hasHouseLand', label: '有無不動產', description: '是否名下有房屋或土地。', kind: 'boolean' },
+  { key: 'phone', label: '聯絡電話', description: '請填寫 09 開頭手機號碼。', kind: 'phone', placeholder: '0912345678' },
+  { key: 'lineId', label: 'LINE ID', description: '請填寫可聯繫的 LINE ID。', kind: 'text', placeholder: 'mylineid' }
 ]
 
+function parseVehicleTaxArrearsAmount(summary: string) {
+  const match = summary.match(/(\d[\d,]*)/)
+  return match ? Number(match[1].replace(/,/g, '')) : 0
+}
+
+export function getIncomeProofBooleans(profile: LeadIntakeInput['incomeProofProfile']) {
+  return {
+    hasPayroll: profile === 'payroll' || profile === 'both',
+    hasLaborInsurance: profile === 'laborInsurance' || profile === 'both'
+  }
+}
+
+export function getVehicleBooleans(profile: LeadIntakeInput['vehicleProfile']) {
+  return {
+    hasCar: profile === 'car' || profile === 'both',
+    hasMotorcycle: profile === 'motorcycle' || profile === 'both'
+  }
+}
+
+export function getBankFinanceIssueFlags(profile: LeadIntakeInput['bankFinanceIssueProfile']) {
+  const hasDebt = profile === 'bankDebt' || profile === 'financeDebt' || profile === 'both' || profile.includes('Debt')
+  const hasNegotiationOrBankruptcy = profile.includes('Negotiation') || profile === 'negotiation'
+
+  return {
+    hasNegotiationOrBankruptcy,
+    creditRiskProfile:
+      profile === 'none'
+        ? 'none'
+        : profile === 'negotiation'
+          ? 'negotiationOrBankruptcy'
+          : hasDebt && hasNegotiationOrBankruptcy
+            ? 'multipleRisks'
+            : hasDebt
+              ? 'recentLatePayment'
+              : 'none'
+  } as const
+}
+
+export function getVehicleTaxArrearsFlags(summary: string) {
+  const normalized = summary.trim()
+  const amount = parseVehicleTaxArrearsAmount(normalized)
+  const hasVehicleTaxArrears = /^(有|yes|y|true)/i.test(normalized) || amount > 0
+
+  return {
+    hasVehicleTaxArrears,
+    vehicleTaxArrearsAmount: hasVehicleTaxArrears ? amount : 0
+  }
+}
+
 export const intakeDefaults: LeadIntakeInput = {
-  fundingNeed: 300000,
-  fundingUse: '',
-  jobType: '上班族',
-  monthlyIncome: 50000,
-  hasPayroll: true,
-  hasLaborInsurance: true,
-  hasTaxRecords: true,
-  hasCreditCard: true,
-  hasRevolving: false,
-  hasOtherLoans: false,
-  monthlyDebtPayment: 0,
-  recentLatePayment: false,
-  hasNegotiationOrBankruptcy: false,
-  hasCar: false,
-  hasHouse: false,
-  hasGuarantor: false,
   fullName: '',
-  phone: '',
-  lineId: ''
+  birthDate: '1900-01-01',
+  nationalId: 'A123456789',
+  householdRegistrationAddress: '未提供',
+  currentResidenceAddress: '未提供',
+  currentJobTitle: '未提供',
+  laborInsuranceYears: 0,
+  monthlySalary: 0,
+  hasPayroll: false,
+  hasLaborInsurance: false,
+  incomeProofProfile: 'none',
+  hasVehicleTaxArrears: false,
+  vehicleTaxArrearsAmount: 0,
+  vehicleTaxArrearsSummary: '無',
+  hasCriminalRecord: false,
+  criminalRecordCharge: '無',
+  hasCourtDeduction: false,
+  hasBankWarningAccount: false,
+  hasCar: false,
+  hasMotorcycle: false,
+  hasHouseLand: false,
+  vehicleProfile: 'none',
+  bankFinanceIssueProfile: 'none',
+  assetProfile: 'none',
+  debtProfile: 'none',
+  creditRiskProfile: 'none',
+  hasNegotiationOrBankruptcy: false,
+  bankLoanSummary: '無',
+  financeLoanSummary: '無',
+  pawnshopLoanSummary: '無',
+  privateLoanSummary: '無',
+  creditCardSummary: '無',
+  fundingNeed: 300000,
+  fundingUse: '未提供',
+  recentBankFinanceLoanApplication: '無',
+  repaymentHistorySummary: '無',
+  totalLoanTermSummary: '無',
+  hasDrivingLicense: false,
+  existingLoans: [],
+  phone: '0900000000',
+  lineId: '未提供'
 }

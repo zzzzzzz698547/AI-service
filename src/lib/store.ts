@@ -1,7 +1,9 @@
 import { demoFollowUps, demoLeads, demoNotifications, demoUsers } from '@/lib/mock-data'
+import { buildAssistantReplySnapshot } from '@/lib/assistant-reply'
 import { hashPassword } from '@/lib/auth'
 import { evaluateLoanIntake } from '@/lib/loan-rules'
 import type {
+  AssistantReplySnapshot,
   DashboardStats,
   LeadIntakeInput,
   LeadStatus,
@@ -35,7 +37,11 @@ function createLeadRecord(input: LeadIntakeInput, status: LeadStatus = 'NEW', as
     secondaryRecommendation: evaluation.secondaryRecommendation ?? null,
     reasons: evaluation.reasons,
     requiredDocuments: evaluation.requiredDocuments,
-    needManualReview: evaluation.needManualReview
+    needManualReview: evaluation.needManualReview,
+    analysisSummary: evaluation.analysisSummary,
+    recommendedActions: evaluation.recommendedActions,
+    intakeSnapshot: input,
+    assistantReplySnapshot: null
   }
 }
 
@@ -76,7 +82,18 @@ export function listLeads(filters?: {
   const results = store.leads.filter((lead) => {
     const matchesQuery =
       !filters?.query ||
-      [lead.fullName, lead.phone, lead.lineId, lead.fundingUse].some((value) =>
+      [
+        lead.fullName,
+        lead.phone,
+        lead.lineId,
+        lead.fundingUse,
+        lead.assetProfile,
+        lead.debtProfile,
+        lead.creditRiskProfile,
+        lead.currentJobTitle,
+        lead.householdRegistrationAddress,
+        lead.currentResidenceAddress
+      ].some((value) =>
         value.toLowerCase().includes(filters.query!.toLowerCase())
       )
 
@@ -147,6 +164,32 @@ export async function createLead(input: LeadIntakeInput) {
   })
 
   return lead
+}
+
+export function setLeadAssistantReply(
+  leadId: string,
+  reply: { provider: 'ollama' | 'fallback'; model: string; content: string }
+) {
+  const lead = getLeadById(leadId)
+  if (!lead) return null
+
+  lead.assistantReplySnapshot = buildAssistantReplySnapshot(reply, {
+    applicantName: lead.fullName,
+    recommendation: {
+      primaryRecommendation: lead.primaryRecommendation,
+      secondaryRecommendation: lead.secondaryRecommendation,
+      riskLevel: lead.riskLevel,
+      score: lead.score,
+      reasons: lead.reasons,
+      requiredDocuments: lead.requiredDocuments,
+      needManualReview: lead.needManualReview,
+      analysisSummary: lead.analysisSummary,
+      recommendedActions: lead.recommendedActions
+    }
+  }) as AssistantReplySnapshot
+
+  lead.updatedAt = new Date().toISOString()
+  return lead.assistantReplySnapshot
 }
 
 export function updateLeadStatus(leadId: string, status: LeadStatus) {

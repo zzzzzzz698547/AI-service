@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createLead, listLeads } from '@/lib/store'
+import { createLead, listLeads, setLeadAssistantReply } from '@/lib/store'
 import { leadIntakeSchema } from '@/lib/validation'
 import { generateAssistantSummary } from '@/lib/ollama'
 
@@ -35,9 +35,12 @@ export async function POST(request: Request) {
       score: lead.score,
       reasons: lead.reasons,
       requiredDocuments: lead.requiredDocuments,
-      needManualReview: lead.needManualReview
+      needManualReview: lead.needManualReview,
+      analysisSummary: lead.analysisSummary,
+      recommendedActions: lead.recommendedActions
     }
   })
+  setLeadAssistantReply(lead.id, assistant)
 
   return NextResponse.json({
     leadId: lead.id,

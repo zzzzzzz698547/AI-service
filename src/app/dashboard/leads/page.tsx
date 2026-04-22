@@ -71,9 +71,17 @@ export default function LeadsPage({ searchParams }: { searchParams: SearchParams
           <Select id="recommendation" name="recommendation" defaultValue={recommendation}>
             <option value="">全部</option>
             <option value="信用貸款">信用貸款</option>
+            <option value="房貸">房貸</option>
+            <option value="買車找錢">買車找錢</option>
+            <option value="原車融資">原車融資</option>
+            <option value="汽車改裝分期">汽車改裝分期</option>
+            <option value="機車改裝分期">機車改裝分期</option>
             <option value="汽車貸款">汽車貸款</option>
             <option value="汽車增貸">汽車增貸</option>
             <option value="機車貸款">機車貸款</option>
+            <option value="商品貸款">商品貸款</option>
+            <option value="手機貸款">手機貸款</option>
+            <option value="呆帳專案">呆帳專案</option>
             <option value="房屋二胎">房屋二胎</option>
             <option value="代書貸款">代書貸款</option>
             <option value="整合負債">整合負債</option>

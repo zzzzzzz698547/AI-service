@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { intakeDefaults } from '@/lib/loan-intake-steps'
+import { intakeDefaults, intakeSteps } from '@/lib/loan-intake-steps'
 import type { LeadIntakeInput } from '@/lib/types'
 
 type LoanWizardState = {
@@ -33,9 +33,9 @@ export const useLoanWizard = create<LoanWizardState>((set) => ({
   ...initialState,
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
-  nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 18) })),
+  nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, intakeSteps.length) })),
   prevStep: () => set((state) => ({ currentStep: Math.max(state.currentStep - 1, 0) })),
-  setStep: (step) => set({ currentStep: Math.max(0, Math.min(step, 18)) }),
+  setStep: (step) => set({ currentStep: Math.max(0, Math.min(step, intakeSteps.length)) }),
   setField: (key, value) => set((state) => ({ formData: { ...state.formData, [key]: value } })),
   setSubmitting: (value) => set({ isSubmitting: value }),
   setSubmittedLeadId: (value) => set({ submittedLeadId: value }),

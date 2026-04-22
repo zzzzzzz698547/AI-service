@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { SiteNavbar } from '@/components/site-navbar'
 import { LoanChatbot } from '@/components/loan-chatbot'
+import { BrandMark } from '@/components/brand-mark'
+
+const lineHref = 'https://line.me/ti/p/LU8wTJb3wF'
 
 const plans = [
   {
@@ -51,6 +54,15 @@ export default function HomePage() {
         <div className="absolute left-0 top-36 h-60 w-60 -translate-x-1/2 rounded-full bg-gold-100/70 blur-3xl" />
         <div className="mx-auto grid min-h-[calc(100svh-5rem)] max-w-7xl items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-0">
           <div className="relative z-10 max-w-2xl">
+            <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-brand-100 bg-white/90 px-4 py-2 shadow-soft backdrop-blur">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-2 ring-1 ring-brand-100">
+                <BrandMark className="h-full w-full scale-[0.92]" />
+              </div>
+              <div className="text-left">
+                <div className="text-sm font-semibold text-slate-900">貸款智能初審客服系統</div>
+                <div className="text-xs text-slate-500">初步條件評估・快速了解可參考方案</div>
+              </div>
+            </div>
             <Badge variant="outline" className="mb-5 border-brand-200 bg-brand-50 text-brand-700">
               貸款官方網站・金融科技感介面
             </Badge>
@@ -68,7 +80,7 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </a>
-              <a href="https://line.me" target="_blank" rel="noreferrer">
+              <a href={lineHref} target="_blank" rel="noreferrer">
                 <Button size="lg" variant="outline">
                   LINE 諮詢
                   <MessageCircleMore className="h-4 w-4" />
@@ -214,7 +226,7 @@ export default function HomePage() {
             <p className="mt-4 text-slate-300">點右下角聊天入口即可開始多步驟初審，送出後會建立案件並預留通知擴充能力。</p>
           </div>
           <div className="mt-6 flex gap-3 lg:mt-0">
-            <a href="https://line.me" target="_blank" rel="noreferrer">
+            <a href={lineHref} target="_blank" rel="noreferrer">
               <Button variant="gold" size="lg">
                 <MessageCircleMore className="h-4 w-4" />
                 LINE 諮詢
@@ -252,7 +264,7 @@ export default function HomePage() {
               <a href="#faq" className="transition hover:text-brand-700">
                 常見問題
               </a>
-              <a href="#contact" className="transition hover:text-brand-700">
+              <a href={lineHref} target="_blank" rel="noreferrer" className="transition hover:text-brand-700">
                 LINE 諮詢
               </a>
             </div>
