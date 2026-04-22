@@ -152,7 +152,34 @@ ollama pull llama3.2:3b
 
 如果你暫時還沒有正式 Ollama 服務，可以先不填 `OLLAMA_BASE_URL`，系統會直接走 fallback 回覆，不會卡等本機模型。
 
-### 4. 資料庫
+### 4. Ollama 正式上線
+
+Vercel **不能** 連到你電腦本機的 `http://127.0.0.1:11434`。如果你要讓線上網站真的用到 Ollama，`OLLAMA_BASE_URL` 必須是外網可訪問的 HTTPS 網址，例如：
+
+```env
+OLLAMA_BASE_URL="https://ollama.yourdomain.com"
+OLLAMA_MODEL="qwen2.5:7b"
+```
+
+你可以用以下其中一種方式把 Ollama 放到外網：
+
+1. **VPS + 反向代理**
+   - 在雲端主機安裝 Ollama
+   - 用 Nginx / Caddy / Traefik 封裝成 HTTPS
+   - 對外提供 `https://ollama.yourdomain.com`
+
+2. **Cloudflare Tunnel**
+   - 本機或伺服器跑 Ollama
+   - 用 Cloudflare Tunnel 暴露成公開 HTTPS 網址
+   - 適合先測試或快速上線
+
+3. **暫時測試用 ngrok / 其他 tunnel**
+   - 適合短期驗證
+   - 不建議當正式商用網址
+
+如果你只是先把網站上架，Ollama 可以先不填；等你有外網模型服務後，再把 `OLLAMA_BASE_URL` 補上即可。
+
+### 5. 資料庫
 
 建議使用雲端 PostgreSQL，例如 Neon、Supabase、Railway 或 Vercel Marketplace 的資料庫服務。
 
@@ -188,11 +215,11 @@ DATABASE_URL="postgresql://postgres.你的projectref:你的密碼@aws-0-你的re
 
 如果你要先用 Vercel 上線、之後再補資料庫，也可以先部署，再回來補 `DATABASE_URL`。
 
-### 5. 部署
+### 6. 部署
 
 Vercel 會自動偵測 Next.js，直接按 Deploy 即可。
 
-### 6. 上線後檢查
+### 7. 上線後檢查
 
 - `/` 首頁是否正常
 - `/login` 是否能登入
